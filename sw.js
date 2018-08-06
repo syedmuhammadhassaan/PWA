@@ -1,4 +1,4 @@
-cacheName='my_demo1'
+cacheName='my_demo01'
 
 var filesToCache = [
 
@@ -42,19 +42,56 @@ self.addEventListener('install', function(e)
 
 
 
-self.addEventListener('fetch', function(e) 
-{
-    console.log('[ServiceWorker] Fetch', e.request.url);
+// self.addEventListener('fetch', function(e) 
+// {
+//     console.log('[ServiceWorker] Fetch', e.request.url);
 
-    e.respondWith
-    (
-       caches.match(e.request).then
-       (function (response) 
-       {
-        return response || fetch (e.request);
-       }
-       )
+//     e.respondWith
+//     (
+//        caches.open(e.request).then
+//        (function (response) 
+//         {
+//           var fetchPromise = fetch(e.request).then
+//           (function(networkResponse) 
+//           {
+//           cache.put(e.request, networkResponse.clone());
+//           return response || fetch (e.request);
+//           }
+//           )
+//         }
+//         )
 
-    );
+//     );
+// });
+
+
+
+self.addEventListener('fetch', function(e) {
+  console.log('[ServiceWorker] Fetch',e.request.url);
+  if (e.request.url.startsWith("http://localhost:3000"))
+  {
+    caches.open('my_demo1').then(function(cache) 
+    {
+    return fetch(e.request).then(function(response) 
+      {
+        cache.put(e.request, response.clone());
+        return response;
+      })
+    })
+  }
+  
+  
+  else
+  {
+  e.respondWith
+  (
+    caches.match(e.request).then(function(response)
+    {
+      return response ||  fetch(e.request);
+    })
+
+  ); 
+  }
 });
+
 
